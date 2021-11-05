@@ -1,0 +1,916 @@
+<html lang="en"><head>
+<title>D Manual</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name=description content="D Manual">
+<meta name=generator content="makeinfo 4.0">
+<link href="http://texinfo.org/" rel=generator-home>
+</head><body>
+
+<p><hr>
+Node:<a name="Top">Top</a>,
+Next:<a rel=next href="#Quick%20Tour">Quick Tour</a>,
+Previous:<a rel=previous href="#(dir)">(dir)</a>,
+Up:<a rel=up href="#(dir)">(dir)</a>
+<br>
+
+<ul>
+<li><a href="#Quick%20Tour">Quick Tour</a>:                   Get a quick impression
+<li><a href="#Overview">Overview</a>:                     The basic concepts
+<li><a href="#Programming">Programming</a>:                  Learn how to work with D
+<li><a href="#D%20in%20depth">D in depth</a>:                   Details, details
+<li><a href="#Miscellaneous">Miscellaneous</a>:                History, Files etc.
+
+<p>--- The Detailed Node Listing ---
+
+<p>Overview
+
+</p><li><a href="#Why%20D%3f">Why D?</a>: 
+<li><a href="#What%20you%20should%20know">What you should know</a>: 
+<li><a href="#Launching%20D">Launching D</a>: 
+<li><a href="#The%20stack">The stack</a>: 
+<li><a href="#Words">Words</a>: 
+<li><a href="#The%20Dictionary">The Dictionary</a>:
+
+<p>Programming
+
+</p><li><a href="#Reading%20Files">Reading Files</a>: 
+<li><a href="#Counted%20Loops">Counted Loops</a>: 
+<li><a href="#Conditional%20Loops">Conditional Loops</a>: 
+<li><a href="#Locals">Locals</a>: 
+<li><a href="#Explanations">Explanations</a>:
+
+<p>D in depth
+
+</p><li><a href="#Conventions">Conventions</a>: 
+<li><a href="#Input">Input</a>: 
+<li><a href="#Stack%20caching">Stack caching</a>: 
+<li><a href="#Words%20and%20the%20Dictionary">Words and the Dictionary</a>: 
+<li><a href="#Registers">Registers</a>: 
+<li><a href="#Assembler">Assembler</a>: 
+<li><a href="#Numbers">Numbers</a>: 
+<li><a href="#Strings">Strings</a>:
+
+<p>Miscellaneous
+
+</p><li><a href="#The%20Kernel">The Kernel</a>: 
+<li><a href="#List%20of%20Files">List of Files</a>: 
+<li><a href="#Release%20History">Release History</a>:
+
+</ul>
+
+<p><hr>
+Node:<a name="Quick%20Tour">Quick Tour</a>,
+Next:<a rel=next href="#Overview">Overview</a>,
+Previous:<a rel=previous href="#Top">Top</a>,
+Up:<a rel=up href="#Top">Top</a>
+<br>
+
+<h1>Quick Tour</h1>
+
+<p>To launch D, open the Terminal and change to D's directory. Type
+<pre>./D all.d
+</pre>
+
+<p>Enter the following examples to see D in action:
+<ul>
+
+<li>Arithmetic
+<pre>4 5 + .   ( This is a comment )
+
+2 3 4 + * .   ( That's 2*(3+4) )
+
+10 3 /mod . BL .   ( remainder and quotient, BL prints a space )
+</pre>
+
+<li>Variables
+<pre>variable foo   ( Create a global variable foo )
+4 5 + foo !   ( Store 9 in foo )
+foo @ .   ( Fetch and print foo )
+
+: hello { in - temp -- } ( Create local variables in and temp )
+    in 2 * =&gt; temp
+    temp 1 - ;
+100 hello . ( 100 is pushed into 'in' )
+</pre>
+
+<li>"Functions"
+<pre>: squared   dup * ;
+4 squared .
+</pre>
+
+<pre>: abs   dup 0 &lt; if negate then ;
+-60 abs .
+</pre>
+
+<li>Loops
+<pre>: star   42 emit ;
+star
+: stars   do star loop ;
+5 stars
+</pre>
+
+</ul>
+
+<p><hr>
+Node:<a name="Overview">Overview</a>,
+Next:<a rel=next href="#Programming">Programming</a>,
+Previous:<a rel=previous href="#Quick%20Tour">Quick Tour</a>,
+Up:<a rel=up href="#Top">Top</a>
+<br>
+
+<h1>Overview</h1>
+
+<p>D is an interactive compiler based on <small>FORTH</small>. It is implemented for
+the PowerPC processor under Mac OS X.
+
+<p>D is licensed under the <small>GNU</small> General Public License, see the file
+<code>COPYING</code> for details.
+
+<p>If you have any questions, comments, suggestions or bug reports
+concerning D, feel free to write <a href="mailto:danengel@ee.ethz.ch">me</a>. Visit
+the <a href="http://www.ee.ethz.ch/~danengel/d/">website</a> for the latest
+release.
+
+<ul>
+<li><a href="#Why%20D%3f">Why D?</a>: 
+<li><a href="#What%20you%20should%20know">What you should know</a>: 
+<li><a href="#Launching%20D">Launching D</a>: 
+<li><a href="#The%20stack">The stack</a>: 
+<li><a href="#Words">Words</a>: 
+<li><a href="#The%20Dictionary">The Dictionary</a>: 
+</ul>
+
+<p><hr>
+Node:<a name="Why%20D%3f">Why D?</a>,
+Next:<a rel=next href="#What%20you%20should%20know">What you should know</a>,
+Previous:<a rel=previous href="#Overview">Overview</a>,
+Up:<a rel=up href="#Overview">Overview</a>
+<br>
+
+<h2>Why D?</h2>
+
+<p>The main strengths of D are
+<ul>
+    <li><strong>interactivity</strong>: All steps (edit, compile, link,
+execute) take place in the same environment. Code you type is compiled
+before you can take your hands off the keyboard.
+
+<li><strong>simplicity</strong>: D has one syntax rule and one data type.
+
+<li><strong>speed</strong>: Compile 1500 lines in only 0.2 seconds (at 300
+MHz).
+
+<li><strong>empower</strong>: Do whatever you want without a complaining
+compiler.
+
+<li><strong>modifiability</strong>: You may change anything you want,
+rewrite the compiler, assembler, interpreter, add new functionality or
+structures.
+
+<li>seamless integration of <strong>assembler</strong>: You may always
+write in assembler, even in the middle of a function. 
+</ul>
+
+<p><hr>
+Node:<a name="What%20you%20should%20know">What you should know</a>,
+Next:<a rel=next href="#Launching%20D">Launching D</a>,
+Previous:<a rel=previous href="#Why%20D%3f">Why D?</a>,
+Up:<a rel=up href="#Overview">Overview</a>
+<br>
+
+<h2>What you should know</h2>
+
+<p>You should be familiar with the basic concepts of programming such as
+variables, functions, loops, stacks and lists.
+
+<p>It is not necessary to know <small>FORTH</small>. The basic structure of D is the
+same, but many things are different, so learning <small>FORTH</small> would make
+things rather complicated.
+
+<p>D may be used without ever using the assembler, but you shouldn't be
+afraid of it:
+<ul>
+        <li>Sometimes a job is done much easier in registers than on a
+stack. 
+        <li>Most of D is written in assembler. To understand D's inner
+workings, there's no way around assembler. 
+</ul>
+
+<p>Because D doesn't perform (almost) any error-checking, it's easy to
+create a big mess in no time. D requires you to think a little more than
+other languages, I hope you like that.
+
+<p><hr>
+Node:<a name="Launching%20D">Launching D</a>,
+Next:<a rel=next href="#The%20stack">The stack</a>,
+Previous:<a rel=previous href="#What%20you%20should%20know">What you should know</a>,
+Up:<a rel=up href="#Overview">Overview</a>
+<br>
+
+<h2>Launching D</h2>
+
+<p>In the Terminal, go to D's directory. Type
+
+<p align="center"><kbd>./D all.d</kbd></p>
+
+<p>after which you should see a welcome message and a prompt <code>&gt;&gt;</code>
+where you can enter your code.
+
+<p>You could launch D with just <kbd>./D</kbd>, but that loads only the kernel
+with which you can't do many things. The file <code>all.d</code> loads all
+sources to compile everything you need.
+
+<p><hr>
+Node:<a name="The%20stack">The stack</a>,
+Next:<a rel=next href="#Words">Words</a>,
+Previous:<a rel=previous href="#Launching%20D">Launching D</a>,
+Up:<a rel=up href="#Overview">Overview</a>
+<br>
+
+<h2>The stack</h2>
+
+<p>D's most important element is the <dfn>stack</dfn> upon which all operations
+take place. A stack is a first-in-last-out structure, you can put an
+item on top of others and take it away later.
+
+<p>We describe a stack by naming all items left-to-right in parentheses. An
+empty stack is denoted by <code>( )</code>, if we add a 3, it becomes <code>(
+3 )</code>. After putting a 7 to it, it is <code>( 3 7 )</code>. If you take away
+one item, you get back 7 and the stack is <code>( 3 )</code>.
+
+<p>To add two numbers (e.g. 3 and 7), we put them on the stack <code>( 3 7
+)</code> and call <code>+</code>, which leaves the result <code>( 10 )</code>. To
+denote what <code>+</code> does we indicate its stack effect as <code>( n1
+n2 -- sum )</code> which means it takes two numbers <code>n1</code> and <code>n2</code>,
+does something and leaves one number <code>sum</code>.
+
+<p>If you've forgotten the stack effect of <code>+</code>, type <code>explain
++</code>
+
+<p>Other operations are <code>dup</code> <code>( n -- n n )</code> which duplicates
+one item, or <code>drop</code> <code>( n -- )</code> which throws one item away.
+
+<p><hr>
+Node:<a name="Words">Words</a>,
+Next:<a rel=next href="#The%20Dictionary">The Dictionary</a>,
+Previous:<a rel=previous href="#The%20stack">The stack</a>,
+Up:<a rel=up href="#Overview">Overview</a>
+<br>
+
+<h2>Words</h2>
+
+<p>In D, everything is a <dfn>word</dfn>. There is no difference between a
+function, variable, constant, class or anything the like. You can, of
+course, use variables, it's just that they're not handled differently
+than other words.
+
+<p>So, how is a word handled? You simply call it by its name, after which
+it's executed. Let me give you some examples:
+<ul>
+        <li><code>bye</code> quits D. 
+        <li><code>+</code> takes two numbers, adds them and leaves the
+result. 
+        <li><code>.</code> takes one number and prints it. 
+</ul>
+
+<p>Fine, but what about variables? If you call the variable <code>foo</code>,
+it leaves the address of a cell in memory. To set <code>foo</code> to 88,
+type
+
+<p align="center"><kbd>variable foo</kbd></p>
+
+<p align="center"><kbd>88 foo !</kbd></p>
+
+<p>The <code>!</code> takes a number (88 in this case) and an address
+(<code>foo</code>'s) and stores the number at the address, so the stack
+effect of <code>!</code> is <code>( n a -- )</code>. 
+Calling <code>@</code> <code>( a -- n )</code> fetches what's in a variable. Try
+
+<p align="center"><kbd>foo @ .</kbd></p>
+
+<p>A word can have any name. All characters except spaces are allowed, so
+valid names would be <code>(hel!lo</code> or <code>#@</code> or <code>%foo/bar</code>.
+
+<p><hr>
+Node:<a name="The%20Dictionary">The Dictionary</a>,
+Previous:<a rel=previous href="#Words">Words</a>,
+Up:<a rel=up href="#Overview">Overview</a>
+<br>
+
+<h2>The Dictionary</h2>
+
+<p>All words are stored in a list called the <dfn>dictionary</dfn>. The list
+starts with the latest word and ends with the first.
+
+<p>When you create a new word, it's added as the latest word. Because of
+this rule, words must be created in order of dependence, i.e. no word
+can use another which is created later. Usually this results in complex
+(later) words which build upon simple (early) ones.
+
+<p>When you type <code>+</code> to add two numbers, D searches the dictionary
+for it and executes the code which belongs to <code>+</code>. If you type
+<kbd>it</kbd>, D complains <code>What is "it"?</code> because there is no such
+word.
+
+<p><hr>
+Node:<a name="Programming">Programming</a>,
+Next:<a rel=next href="#D%20in%20depth">D in depth</a>,
+Previous:<a rel=previous href="#Overview">Overview</a>,
+Up:<a rel=up href="#Top">Top</a>
+<br>
+
+<h1>Programming</h1>
+
+<p>Remember to launch D with <kbd>./D all.d</kbd> everytime.
+
+<ul>
+<li><a href="#Reading%20Files">Reading Files</a>: 
+<li><a href="#Counted%20Loops">Counted Loops</a>: 
+<li><a href="#Conditional%20Loops">Conditional Loops</a>: 
+<li><a href="#Locals">Locals</a>: 
+<li><a href="#Explanations">Explanations</a>: 
+</ul>
+
+<p><hr>
+Node:<a name="Reading%20Files">Reading Files</a>,
+Next:<a rel=next href="#Counted%20Loops">Counted Loops</a>,
+Previous:<a rel=previous href="#Programming">Programming</a>,
+Up:<a rel=up href="#Programming">Programming</a>
+<br>
+
+<h2>Reading Files</h2>
+
+<p>D can read files using the word <code>learn</code>. For example,
+<code>learn assembler.d</code> reads the file <code>assembler.d</code> as if you
+entered it manually. The file name extension <code>.d</code> is just a
+convention and not necessary.
+
+<p>To avoid reading a file twice, <code>?learn</code> may be used instead of
+<code>learn</code>. Using <code>?learn</code>, a file is read only if no word
+with the same name as the file already exists. To make use of this,
+begin the file <code>foobar.d</code> with <code>: foobar.d ;</code>
+
+<p>A file may be read at startup by launching D with <kbd>./D foobar.d</kbd>
+
+<p><hr>
+Node:<a name="Counted%20Loops">Counted Loops</a>,
+Next:<a rel=next href="#Conditional%20Loops">Conditional Loops</a>,
+Previous:<a rel=previous href="#Reading%20Files">Reading Files</a>,
+Up:<a rel=up href="#Programming">Programming</a>
+<br>
+
+<h2>Counted Loops</h2>
+
+<p>Counted loops can be compiled using <code>do</code> and
+<code>loop</code>. When running, <code>do</code> pops a number from the stack,
+the number of repetitions.
+
+<pre>: tell 5 do ." Hello World!\n" loop ;
+tell
+</pre>
+
+<p>The current loop counter can be accessed with <code>i</code>:
+
+<pre>: count ( n -- ) do i . BL loop ;
+10 count
+</pre>
+
+<p>Loops count backwards because the count register (<small>CTR</small>) is used. If
+you need to count forward, you have severeal options:
+
+<ul>
+<li>For simple loops, count a value on the stack.
+<pre>: hundred ( -- ) 100   10 do dup . BL   1 + loop   drop ;
+hundred
+</pre>
+The number 100 is incremented each time at the end of the loop.
+
+<li>For complex loops, count a local:
+<pre>: hundred { - n -- }
+    100 =&gt; n
+    10 do n . BL   inc&gt; n loop ;
+hundred
+</pre>
+
+<li>Another way is to subtract <code>i</code> from a value:
+<pre>: hundred ( -- ) 10 do 110 i - . BL loop ;
+hundred
+</pre>
+</ul>
+
+<p>If a loop is inside another, <code>j</code> gets you the outer counter:
+<pre>: double ( -- ) 5 do 3 do j . BL loop LF loop ;
+double
+</pre>
+
+<h3>Advanced</h3>
+
+<p>Before a loop is entered, the count register (<small>CTR</small>) is saved on the
+system stack because every word must leave it unchanged. The top stack
+item is then loaded into <small>CTR</small>. At the end of the loop, a
+<code>bdnz</code>-instruction decrements it and jumps back.
+
+<p>To get the current <small>CTR</small>, <code>i</code> simply pushes it on the stack,
+<code>j</code> reads the top cell on the system stack. If there is no outer
+loop, <code>j</code> is just garbage. If there is no loop at all,
+<code>i</code> makes no sense too.
+
+<p>I'm not really happy with backward counting loops, but it is simple and
+straightforward. Changing all loops to count upwards by default can be
+done, of course.
+
+<p><hr>
+Node:<a name="Conditional%20Loops">Conditional Loops</a>,
+Next:<a rel=next href="#Locals">Locals</a>,
+Previous:<a rel=previous href="#Counted%20Loops">Counted Loops</a>,
+Up:<a rel=up href="#Programming">Programming</a>
+<br>
+
+<h2>Conditional Loops</h2>
+
+<p>There are two types of conditional loops:
+<code>begin</code>-<code>until</code> and <code>begin</code>-<code>again</code>.
+
+<p>You need to cancel this by Control-C:
+<pre>: forever ( -- ) begin ." oh no! " again ;
+forever
+</pre>
+
+<p>This one has the same effect:
+<pre>: forever ( -- ) begin ." oh no!" 1 until ;
+forever
+</pre>
+
+<p><code>until</code> pops a flag from the stack, if it's true, it jumps to
+<code>begin</code>, otherwise it leaves the loop. Thus, the following
+executes only once.
+
+<pre>: forever ( -- ) begin ." oh no!" 0 until ;
+forever
+</pre>
+
+<p><hr>
+Node:<a name="Locals">Locals</a>,
+Next:<a rel=next href="#Explanations">Explanations</a>,
+Previous:<a rel=previous href="#Conditional%20Loops">Conditional Loops</a>,
+Up:<a rel=up href="#Programming">Programming</a>
+<br>
+
+<h2>Locals</h2>
+
+<p>A stack is fine for many operations but sometimes it's better to use
+<dfn>locals</dfn>. They are like variables which are visible only in the
+current definition. Because they use registers, very efficient code is
+generated.
+
+<p>Up to 9 locals can be defined in a word. Normally, they're used to hold
+input paramters:
+
+<p><code>: tree { count x } ( ... ) ;</code>
+
+<p>When calling <code>4 5 tree</code>, <code>count</code> and <code>x</code> hold the values
+4 and 5.
+
+<p>If you need a local which should not be loaded with input parameters,
+e.g. for an intermediate result, you may use
+
+<p><code>: tree { count x - temp } ( ... ) ;</code>
+
+<p>The dash "-" tells D that the following words should not be loaded
+initially, so they're value is undefined (not zero) first.
+
+<p>Anything after "<code>--</code>" is ignored to make a local definition look
+like a stack comment:
+
+<p><code>: tree { count x - temp -- ignore me } ( ... ) ;</code>
+
+<p>Because locals are stored in registers (as opposed to variables which
+reside in memory) the syntax to handle them is a little different:
+<pre>: swap { a b } b a ; ( Fetch a local by entering its name )
+
+: foo { - x } 5 =&gt; x   x ; ( Store 5 in x and fetch it )
+
+: bar { a - me } 4 ++&gt; a ; ( Add 4 to a )
+
+: nice { - x -- out } clear&gt; x inc&gt; x ; ( Clear, then increment x by 1 )
+</pre>
+
+<p>Locals can be used in assembler, too. Use <code>` n</code> to get the
+register number of <code>n</code>:
+
+<pre>: invert { n -- n }
+    [ t0 -1 li , ] ( set t0 = -1 )
+    [ ` n dup t0 xor , ] ( xor t0 and n )
+    n ;
+#11110000 invert #.
+</pre>
+
+<h3>Advanced</h3>
+
+<p>Some of the 32 general purpose registers are used as local variables,
+currently <code>s0</code>-<code>s8</code>. For more about register usage see
+<a href="#Registers">Registers</a>.
+
+<p>For every local that can be used, a (initially non-named) word
+exists. Their addresses are stored in the array <code>locals</code>. Each of
+these words has a register number stored at a fixed offset
+(<code>&gt;{#}</code>) from the word address.
+
+<p>When creating locals with e.g. <code>{ alpha bar - x }</code>, each name is
+assigned one of the words in <code>locals</code>. In this case,
+<code>alpha</code> would be the first (<code>s0</code>, <code>bar</code> the second
+<code>s1</code>, and so on.
+
+<p>To work with locals, their register numbers are needed. This is what the
+local tick <code>`</code> (not <code>'</code>) is good for: It returns the number
+stored at the offset <code>&gt;{#}</code>, which is the register by
+definition. Commands such as <code>=&gt;</code>, <code>++&gt;</code> use <code>`</code> to
+compile their according instructions.
+
+<p>See the file <code>locals.d</code> for additional information, e.g. about how
+to write new handling words such as <code>=&gt;</code>.
+
+<p><hr>
+Node:<a name="Explanations">Explanations</a>,
+Previous:<a rel=previous href="#Locals">Locals</a>,
+Up:<a rel=up href="#Programming">Programming</a>
+<br>
+
+<h2>Explanations</h2>
+
+<p>Because it is difficult to remember the stack effects of all words, and
+sometimes you may even forget the meaning of one, an explanation
+mechanism is a built-in feature of D.
+
+<p>To explain a word, enter <code>explain</code> followed by the name of the
+word (e.g. <code>explain words</code>). Most words describe only their stack
+effect, a few (such as <code>(:)</code> tell you more, some have no
+explanation.
+
+<p>To provide explanations about general topics or a group of similar
+words, you may use words beginning with <code>??-</code>. These words contain
+only an explanation and no code. The advantage of the <code>??-</code> naming
+convention is that you can enter <code>explain ??-</code> followed by the
+<kbd>TAB</kbd>-key which lists all such words.
+
+<p>When defining a new word, you can include an explanation:
+<pre>: hot-new-word ?" ( n1 n1 -- n3 ) I am so cool!" dup rot over ( anything more ) ;
+</pre>
+Try <code>explain hot-new-word</code>.
+
+<p>The "explained"-bit of the flags of a word is set if an explanation is
+provided.
+
+<p><hr>
+Node:<a name="D%20in%20depth">D in depth</a>,
+Next:<a rel=next href="#Miscellaneous">Miscellaneous</a>,
+Previous:<a rel=previous href="#Programming">Programming</a>,
+Up:<a rel=up href="#Top">Top</a>
+<br>
+
+<h1>D in depth</h1>
+
+<ul>
+<li><a href="#Conventions">Conventions</a>: 
+<li><a href="#Input">Input</a>: 
+<li><a href="#Stack%20caching">Stack caching</a>: 
+<li><a href="#Words%20and%20the%20Dictionary">Words and the Dictionary</a>: 
+<li><a href="#Registers">Registers</a>: 
+<li><a href="#Assembler">Assembler</a>: 
+<li><a href="#Numbers">Numbers</a>: 
+<li><a href="#Strings">Strings</a>: 
+</ul>
+
+<p><hr>
+Node:<a name="Conventions">Conventions</a>,
+Next:<a rel=next href="#Input">Input</a>,
+Previous:<a rel=previous href="#D%20in%20depth">D in depth</a>,
+Up:<a rel=up href="#D%20in%20depth">D in depth</a>
+<br>
+
+<h2>Conventions</h2>
+
+<p>First of all, let's declare some frequently used terms:
+<ul>
+<li><dfn>Cell</dfn>: 32 bits (or 4 bytes). The basic (and only) data
+type. A cell in memory must be 4-byte-aligned. 
+<li><dfn>String</dfn>: Any zero-terminated sequence of bytes. 
+<li><dfn>Blank</dfn>: A space, tab, linefeed or carriage return. 
+<li><dfn>Name</dfn>: Any sequence of bytes enclosed by blanks. 
+<li><dfn>Word</dfn>: As an expression, a word of D. As a numerical quantity
+(e.g. in the stack effect of <code>&gt;name ( word -- str ))</code> the address
+of the link field of a word. 
+<li><dfn>Flag</dfn>: A value of 0 means false, any other means true. 
+</ul>
+
+<p><hr>
+Node:<a name="Input">Input</a>,
+Next:<a rel=next href="#Stack%20caching">Stack caching</a>,
+Previous:<a rel=previous href="#Conventions">Conventions</a>,
+Up:<a rel=up href="#D%20in%20depth">D in depth</a>
+<br>
+
+<h2>Input</h2>
+
+<p>D features a <strong>word-completing</strong> mechanism to save time when
+writing code. It works the same as filename-completion in the shell: You
+type the first characters of a name and press the <kbd>TAB</kbd>-key. If the
+beginning of the name is unique, it is completed, otherwise all
+possibilities are listed.
+
+<p><strong>Escape sequences</strong> are handy to enter special characters:
+<code>\n</code> (newline), <code>\t</code> (tab) and <code>\\</code> (backslash) do the
+same as in C. Escape sequences can always be used (not only in strings
+as in C). So <code>:\tfoo\n;</code> looks ugly, but works.
+
+<p><hr>
+Node:<a name="Stack%20caching">Stack caching</a>,
+Next:<a rel=next href="#Words%20and%20the%20Dictionary">Words and the Dictionary</a>,
+Previous:<a rel=previous href="#Input">Input</a>,
+Up:<a rel=up href="#D%20in%20depth">D in depth</a>
+<br>
+
+<h2>Stack caching</h2>
+
+<p>In traditional <small>FORTH</small>-implementations, the stack resides in memory
+and all operations are performed in memory.  Because the PowerPC is
+based on a load-process-store architecture, moving stack cells from
+memory to registers and back is a tideous procedure which requires a lot
+of instructions and time.  Also, we have 32 registers to waste (compared
+to only a few in the earlier days), so why not make use of them?
+
+<p>Thus, three registers (<code>c0</code>, <code>c1</code> and <code>c2</code>) are provided
+for caching the stack. If one cell is cached, it looks like <code>( c0
+)</code>, with two it's <code>( c0 c1 )</code> and with three it's <code>( c0 c1 c2
+)</code>. You can imagine the cache as a real stack "growing" downwards from
+<code>c0</code> to <code>c2</code>.
+
+<p>To make use of the cache, a word can have up to four parts: One which is
+used when the cache is empty, one if there is one cell in the cache, and
+so on. Most words only use one part, e.g. the dot <code>. ( n -- )</code>
+requires one cell in the cache. Primitive words such as <code>dup</code>,
+<code>drop</code>, <code>+</code>, <code>!</code> use more than one part because
+they're used very frequently and should thus be optimized,
+
+<p>For example, <code>+ ( n1 n2 -- sum )</code> has two parts, for two and three
+cells. Their stack effects are <code>( c0 c1 -- c0+c1 )</code> part for two
+cells and <code>( c0 c1 c2 -- c0 c1+c2 )</code> for three.
+
+<p>If a word is to be executed which doesn't match the current number of
+cached cells, the cache is automatically adjusted. For example, calling
+<code>+</code> when no cells are cached causes two items to be loaded
+first.
+
+<p>When defining a word, you can indicate it's cache count on entry using
+<code>:</code> (no cells cached), <code>1:</code> (one cell cached) etc.
+
+<p>Defining a word such as <code>+</code> with multiple parts is a bit more
+difficult:
+<pre>create +   inline
+    2 0 (:) [ c0 c0 c1 add ,   1 - ] (;)
+    3 0 (:) [ c1 c1 c2 add ,   1 - ] ;
+</pre>
+<code>inline</code> means when compiling <code>+</code>, it's code can be
+inserted directly (normally a subroutine call is generated).
+
+<p><code>(:)</code> takes two arguments, the cache count for the current part
+and the numbers of local variables used (0 in this case). <code>(;)</code>
+finishes a part, <code>;</code> the word.
+
+<p><code>[</code> enters the assembler and leaves the cache count on the
+stack. Before leaving the assembler with <code>]</code>, we decrement the
+cache count (using <code>1 -</code>) because <code>+</code> leaves one item less
+than it takes.
+
+<p>Compiling words (<code>literal</code>, <code>word,</code> etc.) deal with the
+stack cache, thus appropriate information must be passed to and from
+these words. Usually <code>in</code> and <code>out</code> in the stack effect are
+used as the stack count entry and exit. For example, <code>literal</code>
+returns <code>out</code>=<code>in</code>+1 because it pushes a number on the stack
+cache.
+
+<p><hr>
+Node:<a name="Words%20and%20the%20Dictionary">Words and the Dictionary</a>,
+Next:<a rel=next href="#Registers">Registers</a>,
+Previous:<a rel=previous href="#Stack%20caching">Stack caching</a>,
+Up:<a rel=up href="#D%20in%20depth">D in depth</a>
+<br>
+
+<h2>Words and the Dictionary</h2>
+
+<p>The dictionary actually consists of two parts: the data and the
+instruction dictionary. The reason for this lies in the way the PowerPC
+processor distinguishes data and instructions (Harvard architecture) and
+is mainly for speed and simplicity. You don't need to care about this
+except when writing new defining words such as <code>variable</code>.
+
+<p>A word uses a continuous space in both dictionaries. The data part
+contains in this order:
+<ul>
+<li>Link field (one cell): Address of the next (older) word. The last
+word terminates the list with zero.
+
+<li>Flags (one cell): Bit 8 = inline, bit 7 = immediate, bit 6 = leaf,
+bit 5 = explained. The least significant byte (bits 24-31) contains the
+cache count on exit of the different parts: bits 30/31 for 0 items, bits
+28/29 for one etc.
+
+<li>Code addresses (4 cells): A code address of a part is zero if no
+such part is provided. E.g. The code addresses of <code>+</code> are 0, 0,
+(address of part 2) and (address of part 3).
+
+<li>Name (String followed by 4 byte-alignment)
+<li>Explanation (String followed by 4 byte-alignment)
+</ul>
+
+<p>The instruction part contains -- of course -- instructions.
+
+<p><hr>
+Node:<a name="Registers">Registers</a>,
+Next:<a rel=next href="#Assembler">Assembler</a>,
+Previous:<a rel=previous href="#Words%20and%20the%20Dictionary">Words and the Dictionary</a>,
+Up:<a rel=up href="#D%20in%20depth">D in depth</a>
+<br>
+
+<h2>Registers</h2>
+
+<p><table><tr align="left"><td><small>GPR</small> 0        <td><td>scratch
+<br></tr><tr align="left"><td><small>GPR</small> 1        <td><code>ssp</code>        <td>system stack pointer
+<br></tr><tr align="left"><td><small>GPR</small> 2        <td><code>rtoc</code>       <td>system data area
+<br></tr><tr align="left"><td><small>GPR</small> 3-10     <td><code>t0-t7</code>      <td>volatile locals
+<br></tr><tr align="left"><td><small>GPR</small> 11-12    <td><code>i0-i1</code>      <td>used by inline words
+<br></tr><tr align="left"><td><small>GPR</small> 13-21    <td><code>s0-s8</code>      <td>preserved locals
+<br></tr><tr align="left"><td><small>GPR</small> 22       <td><td>reserved
+<br></tr><tr align="left"><td><small>GPR</small> 23       <td><td>reserved
+<br></tr><tr align="left"><td><small>GPR</small> 24       <td><code>ref</code>        <td>data segment reference
+<br></tr><tr align="left"><td><small>GPR</small> 25       <td><code>idp</code>        <td>instruction dictionary pointer
+<br></tr><tr align="left"><td><small>GPR</small> 26       <td><code>ddp</code>        <td>data dictionary pointer
+<br></tr><tr align="left"><td><small>GPR</small> 27       <td><code>c0</code>         <td>stack cache 0
+<br></tr><tr align="left"><td><small>GPR</small> 28       <td><code>c1</code>         <td>stack cache 1
+<br></tr><tr align="left"><td><small>GPR</small> 29       <td><code>c2</code>         <td>stack cache 2
+<br></tr><tr align="left"><td><small>GPR</small> 30       <td><td>reserved
+<br></tr><tr align="left"><td><small>GPR</small> 31       <td><code>sp</code>         <td>user stack pointer
+<br></tr><tr align="left"><td>CTR               <td><td>loop counter
+<br></tr></table>
+Any word must preserve the GPR's 13-31 and the count register (<small>CTR</small>).
+
+<p><hr>
+Node:<a name="Assembler">Assembler</a>,
+Next:<a rel=next href="#Numbers">Numbers</a>,
+Previous:<a rel=previous href="#Registers">Registers</a>,
+Up:<a rel=up href="#D%20in%20depth">D in depth</a>
+<br>
+
+<h2>Assembler</h2>
+
+<p>The file <code>assembler.d</code> contains a complete PowerPC-assembler with
+all standard mnemonics, including simplified. There's no AltiVec-support
+yet because my iBook is a good old G3. Don't use labels, there aren't
+any. Most of the time they're not necessary anyway and bad programming
+practice.
+
+<p>The heart of the assembler are instructions. As you would expect, input
+is reversed to the rest of the world. For example, the PowerPC
+specifications tell you to write <code>addic. r4, r5, 99</code>, but with D
+it's <code>r4 r5 99 addic.</code>
+
+<p>An instruction such as <code>addic.</code> generates a number which can be
+compiled using the comma <code>,</code>
+
+<p>An advantage of this seperation (instruction generating and compiling)
+is that instructions can be modified later, which is used heavily in the
+assembler itself. For example, there are many instructions with an
+optional dot, such as <code>add</code>. Instead of redefining the whole
+instruction, we use <code>: add. add Rc ;</code> where <code>Rc</code> sets the
+"record carry" bit.
+
+<p>While compiling, the assembler can be entered using <code>[</code> and is
+left with <code>]</code>. <code>[</code> leaves the cache count and must be
+updated before <code>]</code>, otherwise you mess up the word.
+
+<p><hr>
+Node:<a name="Numbers">Numbers</a>,
+Next:<a rel=next href="#Strings">Strings</a>,
+Previous:<a rel=previous href="#Assembler">Assembler</a>,
+Up:<a rel=up href="#D%20in%20depth">D in depth</a>
+<br>
+
+<h2>Numbers</h2>
+
+<p>You know already that when you enter a number, it's put on the stack. In
+detail, it works like that: Everything you enter is first considered as
+the name of word and searched for in the dictionary. If you enter
+<code>15</code> the search fails. Now D tries to convert <code>15</code> into a
+number, which results in the number 15 on the stack.
+
+<p>If you enter something that's neither a word nor a number, D doesn't
+know what to do and generates an error.
+
+<p>The variable <code>base</code> holds the current base for number
+conversion. <kbd>10 3 base ! . abort</kbd> prints 10 with base 3 and resets
+to base 10.
+
+<p>No floating-point capability is around (except you do it in assembler),
+because I don't know how to implement it efficiently. If you have a good
+idea, tell me.
+
+<p><hr>
+Node:<a name="Strings">Strings</a>,
+Previous:<a rel=previous href="#Numbers">Numbers</a>,
+Up:<a rel=up href="#D%20in%20depth">D in depth</a>
+<br>
+
+<h2>Strings</h2>
+
+<p>Because strings are a somewhat ugly datatype, only basic string handling
+is provided. Strings can be used only when defining words.
+<pre>: hello ( -- )
+    ." Hi there!\nD is nice, isn't it?" ;
+</pre>
+
+<pre>: simple ( -- str ) " Hello world" ;
+( leaves the address of a string )
+simple type
+</pre>
+
+<p><hr>
+Node:<a name="Miscellaneous">Miscellaneous</a>,
+Previous:<a rel=previous href="#D%20in%20depth">D in depth</a>,
+Up:<a rel=up href="#Top">Top</a>
+<br>
+
+<h1>Miscellaneous</h1>
+
+<ul>
+<li><a href="#The%20Kernel">The Kernel</a>: 
+<li><a href="#List%20of%20Files">List of Files</a>: 
+<li><a href="#Release%20History">Release History</a>: 
+</ul>
+
+<p><hr>
+Node:<a name="The%20Kernel">The Kernel</a>,
+Next:<a rel=next href="#List%20of%20Files">List of Files</a>,
+Previous:<a rel=previous href="#Miscellaneous">Miscellaneous</a>,
+Up:<a rel=up href="#Miscellaneous">Miscellaneous</a>
+<br>
+
+<h2>The Kernel</h2>
+
+<p>The kernel holds the basic dictionary with the necessary words to build
+an assembler (which follows in <code>assembler.d</code>). Once we have an
+assembler, anything else can be done.
+
+<p>The file <code>kernel.s</code> can be compiled using the following shell
+commands:
+
+<pre>sed -f ugly.sed kernel.s &gt; kernel~.s;
+cc -framework CoreServices kernel~.s -lreadline -o D;
+strip D;
+rm kernel~.s;
+</pre>
+
+<p><hr>
+Node:<a name="List%20of%20Files">List of Files</a>,
+Next:<a rel=next href="#Release%20History">Release History</a>,
+Previous:<a rel=previous href="#The%20Kernel">The Kernel</a>,
+Up:<a rel=up href="#Miscellaneous">Miscellaneous</a>
+<br>
+
+<h2>List of Files</h2>
+
+<ul>
+<li><code>COPYING</code> The <small>GNU</small> General Public License
+<li><code>D</code> The executable kernel
+<li><code>kernel.s</code> The assembler source of the kernel
+<li><code>ugly.sed</code> The command-file for <code>sed</code> to translate
+register names in <code>kernel.s</code>
+<li><code>*.d</code> Various sources of D
+<li><code>all.d</code> Loads all sources
+</ul>
+
+<p><hr>
+Node:<a name="Release%20History">Release History</a>,
+Previous:<a rel=previous href="#List%20of%20Files">List of Files</a>,
+Up:<a rel=up href="#Miscellaneous">Miscellaneous</a>
+<br>
+
+<h2>Release History</h2>
+
+<h3>Second Release, January 17, 2002</h3>
+
+<ul>
+<li>Added locals. 
+<li>Extended documentation. 
+<li>Renamed <code>code!</code> to <code>part</code>, removed trailing comma of <code>literal</code>, <code>@locals</code>, <code>locals!</code>, <code>epilog</code>, and <code>prolog</code>. 
+<li><code>"compare</code> now leaves the inverse result. 
+<li>Added variations of existing commands <code>"abort</code>, <code>(create)</code>, <code>(forget)</code>. 
+<li>Everything I forgot to mention here :-)
+<li>Some small under-the-hood changes which are not visible to the outer world. 
+</ul>
+
+<h3>First Release, January 3, 2002</h3>
+
+<p>Finished kernel, assembler, if-else-then, do-loop, strings, arithmetic and compares.
+
+</body></html>
+
